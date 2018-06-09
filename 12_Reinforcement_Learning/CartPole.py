@@ -3,7 +3,7 @@ Classical problem in RL: Solving the CartPole environment.
 It simulates an inverted pendulum mounted upwards on cart,
 the pendulum is intially vertical and the goal is to maintain it vertically balanced.
 The only way to control the pendulum is by choosing a horizontal direction for the cart to move
-either to left or right.
+either to left or right. Two solutions are provided.
 '''
 
 import numpy as np
@@ -22,15 +22,11 @@ for step_idx in range(500):
     #    env.reset()
 env.close()
 
-#%%
-
 # ## 1.1 First attempt to solve the CartPole problem
 # Identify vectors with bad policy
 
 X = []
 env = gym.make('CartPole-v0')
-env.render()
-
 
 for step_idx in range(10000):
     obs = env.reset()
@@ -53,7 +49,7 @@ env.env.state = np.zeros(4)
 d0=np.linalg.norm(X - obs,axis=1).max()
 s=env.action_space.sample()
 
-for step_idx in range(1000):
+for step_idx in range(200):
     env.render()
     obs, reward, done, _ = env.step(s)
     d = np.linalg.norm(X-obs,axis=1).min()
@@ -61,7 +57,8 @@ for step_idx in range(1000):
         s = (s+1)%2
     d0 = d
     if done:
-        break
+        pass
+        #break
 
 env.close()
 
@@ -89,9 +86,6 @@ def run_episode(env, policy, t_max=1000, render=False):
         if done:
             break
     return total_reward
-
-
-# In[30]:
 
 
 env = gym.make('CartPole-v0')
