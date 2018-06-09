@@ -1,22 +1,37 @@
+'''
+Classical problem in RL: Solving the CartPole environment.
+It simulates an inverted pendulum mounted upwards on cart,
+the pendulum is intially vertical and the goal is to maintain it vertically balanced.
+The only way to control the pendulum is by choosing a horizontal direction for the cart to move
+either to left or right.
+'''
 
-# coding: utf-8
-#get_ipython().run_line_magic('matplotlib', 'inline')
-matplotlib inline
-import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import gym
 from gym import wrappers
 
+# ## 1.0 Introducing CartPole
+env = gym.make('CartPole-v0')
+# Restart the environment to start a new episode
+env.reset()
 
-# ## 1.1 First attempt
+for step_idx in range(500):
+    env.render()
+    obs, reward, done, _ = env.step(env.action_space.sample())
+    #if done:
+    #    env.reset()
+env.close()
 
-# In[3]:
+#%%
 
-
+# ## 1.1 First attempt to solve the CartPole problem
 # Identify vectors with bad policy
+
 X = []
 env = gym.make('CartPole-v0')
+env.render()
+
+
 for step_idx in range(10000):
     obs = env.reset()
     while True:
@@ -26,9 +41,6 @@ for step_idx in range(10000):
             break
 
 X = np.array(X)
-
-
-# In[8]:
 
 
 # Make a step.
@@ -55,9 +67,6 @@ env.close()
 
 
 # ## 1.2 Random search
-
-# In[29]:
-
 
 def gen_random_policy():
     return (np.random.uniform(-1,1, size=4), np.random.uniform(-1,1))
