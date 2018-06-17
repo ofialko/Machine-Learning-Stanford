@@ -3,12 +3,13 @@ Classical problem in RL: Solving the CartPole environment.
 It simulates an inverted pendulum mounted upwards on cart,
 the pendulum is intially vertical and the goal is to maintain it vertically balanced.
 The only way to control the pendulum is by choosing a horizontal direction for the cart to move
-either to left or right. Two solutions are provided.
+either to left or right. Random Search solution is provided.
 '''
 
 import gym
 from gym import wrappers
 import numpy as np
+
 
 class RandomAgent(object):
     def __init__(self,env):
