@@ -10,25 +10,57 @@ import gym
 from gym import wrappers
 import numpy as np
 
+env = gym.make('CartPole-v0')
+env.observation_space.shape[0]
+env.action_space
+
+
+
+env = gym.make('FrozenLake-v0')
+env.observation_space
+env.action_space.sample()
+
+env = gym.make('MountainCar-v0')
+env.observation_space.high
+env.action_space.sample()
+
 
 class RandomAgent(object):
-    def __init__(self,env):
+    def __init__(self,env,n_policy):
         self.env = env
-        self.observation_space = env.observation_space
-        self.best_policy = self.observation_space.sample()
+        self.n_policy = n_policy
+        self.obs_space = env.observation_space
+        self.act_space = env.action_space
+        self.best_policy = None
 
-    def gen_random_policy(self):
-        return (self.observation_space.sample(), np.random.uniform(-1,1))
+    def softmax(self,vals):
+        x = np.exp(vals)
+        return x/np.sum(x)
 
-    def gen_policy_list(self,n_policy):
-        ## Generate a pool or random policies
-        return [self.gen_random_policy() for _ in range(n_policy)]
-
-    def policy_to_action(self,policy, obs):
-        if np.dot(policy[0], obs) + policy[1] > 0:
-        	return 1
+    def gen_W(self):
+        '''
+        Creates mapping matrix from obs to action
+        '''
+        if len(self.obs_space.shape) == 0:
+            # if Discrete
+            return np.random.randn(self.obs_space.n,self.act_space.n)
+        elif len(self.obs_space.shape) == 1:
+            # if Box
+            return np.random.randn(self.obs_space.shape[0],self.act_space.n)
         else:
-        	return 0
+            raise ValueError
+
+
+    # def gen_random_policy(self):
+    #     return (self.observation_space.sample(), np.random.uniform(-1,1))
+
+    def gen_policy_list(self):
+        ## Generate a pool or random policies
+        return [self.gen_W() for _ in range(self.n_policy)]
+
+    def policy_to_action(self,W, obs):
+        return np.argmax(self.softmax(np.matmul(obs,W)))
+
 
     def run_episode(self,policy=None, outdir = None, t_max=1000):
         if policy is None:
@@ -46,8 +78,7 @@ class RandomAgent(object):
         return total_reward
 
     def train(self):
-        n_policy = 500
-        policy_list = self.gen_policy_list(n_policy)
+        policy_list = self.gen_policy_list(self.n_policy)
         # Evaluate the score of each policy.
         scores_list = [self.run_episode(policy=p) for p in policy_list]
         # Select the best plicy.
