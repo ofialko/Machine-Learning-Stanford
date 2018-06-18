@@ -1,8 +1,12 @@
 ## Reinforcement Learning
 
- - Solutions to several RL agents are provided:
+ - Solutions to several classical RL agents are provided:
    * Cart pole
    * Mountain Car
    * Frozen Lake
    * Taxi
- - Random search agent, Value iteration and Q-learning algorythms are provided.
+ - The following algorithms were used:
+   * random search
+   * genetic algorithm
+   * value iteration
+   * Q-learning
