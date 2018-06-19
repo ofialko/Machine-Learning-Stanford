@@ -12,3 +12,5 @@
   * genetic algorithm
   * value iteration
   * Q-learning
+
+CHECK !
