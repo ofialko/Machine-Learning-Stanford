@@ -10,43 +10,64 @@ import gym
 from gym import wrappers
 import numpy as np
 
-# env = gym.make('FrozenLake-v0')
-# obs = env.reset()
-# act=env.action_space.sample()
-# x = env.step(act);x
-#
-# # env.reset()
-# env.observation_space.sample()
-# env.action_space
-#
-#
-#
-# env = gym.make('FrozenLake-v0')
+
+# env = gym.make('CartPole-v1')
 # env.reset()
-# env.observation_space
+# for _ in range(100):
+#     env.render()
+#     env.step(env.action_space.sample())
+# env.close()
+#
+#
+# env.action_space.sample()
 # env.action_space.sample()
 #
-# env = gym.make('MountainCar-v0')
+#
+# env = gym.make('MountainCarContinuous-v0')
 # env.reset()
-# env.observation_space.high
+# for _ in range(100):
+#     env.render()
+#     env.step(env.action_space.sample())
+# env.close()
+#
+# env.observation_space.sample()
 # env.action_space.sample()
 
+# env = gym.make('CartPole-v1')
+#
+# type(env.observation_space) == gym.spaces.discrete.Discrete
 
 class RandomAgent(object):
     def __init__(self,env,n_policy):
         self.env = env
         self.n_policy = n_policy
         self.obs_space = env.observation_space
-        if len(self.obs_space.shape) == 0:
-            self.type = "Discrete"
-            self.obs = np.zeros(self.obs_space.n)
-        elif len(self.obs_space.shape) == 1:
-            self.type = "Box"
-            self.obs = np.zeros(self.obs_space.shape)
-        else:
-            raise Exception('Observatio space is not supported')
-
         self.act_space = env.action_space
+
+        if  type(self.obs_space) == gym.spaces.Discrete and type(self.act_space) == gym.spaces.Discrete:
+            self.type = "DD"
+            self.x = self.obs_space.n
+            self.y = self.act_space.n
+            self.obs = np.zeros(self.x)
+        elif type(self.obs_space) == gym.spaces.Discrete and type(self.act_space) == gym.spaces.Box:
+            self.type = "DB"
+            self.x = self.obs_space.n
+            self.y = self.act_space.shape[0]
+            self.obs = np.zeros(self.x)
+        elif type(self.obs_space) == gym.spaces.Box and type(self.act_space) == gym.spaces.Discrete:
+            self.type = "BD"
+            self.x = self.obs_space.shape[0]
+            self.y = self.act_space.n
+            self.obs = np.zeros(self.x)
+
+        elif type(self.obs_space) == gym.spaces.Box and type(self.act_space) == gym.spaces.Box:
+            self.type = "BB"
+            self.x = self.obs_space.shape[0]
+            self.y = self.act_space.shape[0]
+            self.obs = np.zeros(self.x)
+        else:
+            raise Exception('Observation/Action space is not supported')
+
         self.best_policy = None
 
     def softmax(self,vals):
@@ -57,17 +78,10 @@ class RandomAgent(object):
         '''
         Creates mapping matrix from obs to action
         '''
-        if len(self.obs_space.shape) == 0:
-            # if Discrete
-            return np.random.randn(self.obs_space.n,self.act_space.n)
-        elif len(self.obs_space.shape) == 1:
-            # if Box
-            return np.random.randn(self.obs_space.shape[0],self.act_space.n)
-        else:
-            raise ValueError
+        return np.random.randn(self.x,self.y)
 
     def gen_obs(self,obs):
-        if self.type == 'Discrete':
+        if self.type == 'DD' or self.type == 'DB':
             x = self.obs.copy()
             x[obs] = 1
             return x
@@ -81,10 +95,13 @@ class RandomAgent(object):
         return [self.gen_W() for _ in range(self.n_policy)]
 
     def policy_to_action(self,W, obs):
-        return np.argmax(self.softmax(np.matmul(obs,W)))
+        if self.type == 'DD' or self.type == 'BD':
+            return np.argmax(np.matmul(obs,W))
+        else:
+            return np.matmul(obs,W)
 
 
-    def run_episode(self,policy=None, outdir = None, t_max=1000):
+    def run_episode(self,policy=None, outdir = None, t_max=2000):
         if policy is None:
             policy = self.best_policy
             self.env = wrappers.Monitor(self.env,directory=outdir,force=True)
@@ -111,7 +128,7 @@ class RandomAgent(object):
 
 
 if __name__ == '__main__':
-    env = gym.make('MountainCar-v0')
+    env = gym.make('Pendulum-v0')
     outdir = '11_Reinforcement_Learning/CartPole-results'
     agent = RandomAgent(env,500)
     agent.train()
