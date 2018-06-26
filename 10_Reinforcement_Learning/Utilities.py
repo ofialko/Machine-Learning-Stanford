@@ -4,7 +4,7 @@ import numpy as np
 
 class RandomAgent(object):
     '''Generates a set of n_policy random solutions
-       and selects the one with the highest reward'''
+       and selects the one with the highest reward.'''
     def __init__(self,env,n_policy):
         self.env = env
         self.n_policy = n_policy
@@ -94,6 +94,11 @@ class RandomAgent(object):
 
 
 class EvolutionAgent(RandomAgent):
+    '''Genetic agent: maintains a pool of candidate solutions.
+    Iteratively, the generation evolved to produce the next generation
+    which has candidate solutions with higher fitness values than the previous generation.
+    This process is repeated for a pre-specified number of generations or until
+    a solution with goal fitness value is found.'''
     def __init__(self,env,n_policy,n_steps):
         super().__init__(env,n_policy)
         self.n_steps = n_steps
