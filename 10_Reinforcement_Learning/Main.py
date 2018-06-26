@@ -1,5 +1,5 @@
 
-from Utilities import *
+from Agents import *
 if __name__ == '__main__':
     env = gym.make('Acrobot-v1')
     outdir = 'Results'
