@@ -5,7 +5,8 @@ if __name__ == '__main__':
 
     outdir = 'Results'
     #agent = RandomAgent(env,1000)
-    agent = EvolutionAgent(env,20,50)
+    #agent = EvolutionAgent(env,20,50)
+    agent = QAgent(env,50,1000)
 
     agent.train()
     print('Training Done')

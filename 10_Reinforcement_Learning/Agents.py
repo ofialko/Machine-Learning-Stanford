@@ -105,3 +105,67 @@ class EvolutionAgent(RandomAgent):
         policy_scores = [self.run_episode(policy=p) for p in policy_list]
         print('Best policy score = {0:f}'.format(max(policy_scores)))
         self.best_policy = policy_list[np.argmax(policy_scores)]
+
+class QAgent(object):
+    def __init__(self,env,n_states,iter):
+        self.env = env
+        self.iter = iter
+        self.n_states = n_states
+        self.initial_lr = 1.0 # Learning rate
+        self.min_lr = 0.003
+        self.gamma = 1
+        self.eps = 0.02
+
+        self.best_policy = None
+
+    def obs_to_state(self, obs):
+        env_low  = self.env.observation_space.low
+        env_high = self.env.observation_space.high
+        env_dx = (env_high - env_low) / self.n_states
+        a = int((obs[0] - env_low[0])/env_dx[0])
+        b = int((obs[1] - env_low[1])/env_dx[1])
+        return a, b
+
+    def run_episode(self,policy=None, outdir = None):
+        if policy is None:
+            policy = self.best_policy
+            self.env = wrappers.Monitor(self.env,directory=outdir,force=True)
+        obs = self.env.reset()
+        total_reward = 0
+        step_idx = 0
+        while True:
+            a,b = self.obs_to_state(obs)
+            action = policy[a][b]
+
+            obs, reward, done, _ = self.env.step(action)
+            total_reward += self.gamma**step_idx * reward
+            step_idx += 1
+            if done:
+                self.env.close()
+                break
+        return total_reward
+
+    def train(self):
+        q_table = np.zeros((self.n_states, self.n_states, 3))
+        for i in range(self.iter):
+            obs = self.env.reset()
+            total_reward = 0
+            eta = max(self.min_lr, self.initial_lr * (0.85 ** (i/100)))
+            while True:
+                a, b = self.obs_to_state(obs)
+                if np.random.uniform(0, 1) < self.eps:
+                    action = np.random.choice(self.env.action_space.n)
+                else:
+                    logits = q_table[a][b]
+                    logits_exp = np.exp(logits)
+                    probs = logits_exp / np.sum(logits_exp)
+                    action = np.random.choice(self.env.action_space.n, p=probs)
+                obs, reward, done, _ = self.env.step(action)
+                total_reward += reward
+                a_, b_ = self.obs_to_state(obs)
+                q_table[a][b][action] = q_table[a][b][action] + eta * (reward + self.gamma *  np.max(q_table[a_][b_]) - q_table[a][b][action])
+                if done:
+                    break
+            if i % 100 == 0:
+                print('Iteration #{0:d} -- Total reward = {1:.2f}.'.format(i+1, total_reward))
+        self.best_policy = np.argmax(q_table, axis=2)
