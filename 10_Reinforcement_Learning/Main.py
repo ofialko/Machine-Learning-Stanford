@@ -1,10 +1,12 @@
 
 from Agents import *
 if __name__ == '__main__':
-    env = gym.make('Acrobot-v1')
+    env = gym.make('MountainCar-v0')
+
     outdir = 'Results'
-    #agent = RandomAgent(env,500)
-    agent = EvolutionAgent(env,100,10)
+    #agent = RandomAgent(env,1000)
+    agent = EvolutionAgent(env,20,50)
+
     agent.train()
     print('Training Done')
     reward = agent.run_episode(outdir = outdir)

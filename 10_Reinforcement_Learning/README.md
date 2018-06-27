@@ -1,14 +1,8 @@
 ## Reinforcement Learning
 
- Solutions to several [classic control](https://gym.openai.com/envs/#classic_control) RL agents are provided:
-  * Acrobot
-  * Cart pole
-  * Mountain Car
-  * Pendulum
-
-
+ Solutions to [Mountain Car](https://gym.openai.com/envs/#classic_control) agent are provided
+ 
  The following algorithms were used:
   * random search
   * genetic algorithm
-  * value iteration
   * Q-learning
