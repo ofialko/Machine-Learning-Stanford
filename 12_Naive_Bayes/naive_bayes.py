@@ -1,6 +1,13 @@
 from collections import Counter, defaultdict
-from machine_learning import split_data
 import math, random, re, glob
+
+def split_data(data, prob):
+    """split data into fractions [prob, 1 - prob]"""
+    results = [], []
+    for row in data:
+        results[0 if random.random() < prob else 1].append(row)
+    return results
+
 
 def tokenize(message):
     message = message.lower()                       # convert to lowercase
@@ -129,5 +136,4 @@ def train_and_test_model(path):
 
 
 if __name__ == "__main__":
-    #train_and_test_model(r"c:\spam\*\*")
-    train_and_test_model(r"/home/joel/src/spam/*/*")
+    train_and_test_model(r"spam\*\*")
